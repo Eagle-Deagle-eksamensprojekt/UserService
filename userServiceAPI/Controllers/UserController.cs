@@ -48,19 +48,21 @@ namespace UserServiceAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] User newUser)
         {
-            // Kald repository for at oprette brugeren
-            var wasCreated = await _userDbRepository.CreateUser(newUser);
-
-            if (!wasCreated)
+            if (newUser == null || string.IsNullOrWhiteSpace(newUser.Email) || string.IsNullOrWhiteSpace(newUser.Firstname))
             {
-                return Conflict(); // Returner 409, hvis brugeren allerede eksisterer
+                return BadRequest("User data is invalid"); // Return 400 Bad Request if data is invalid
             }
 
-        return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
-    }
+            var wasCreated = await _userDbRepository.CreateUser(newUser);
+            if (wasCreated)
+            {
+                return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser); // Return 201 Created
+            }
+            return Conflict("User already exists"); // Return 409 Conflict if user already exists
+        }
 
 
-[       HttpPut("{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] User updatedUser)
         {
             // Kald repository for at opdatere brugeren
