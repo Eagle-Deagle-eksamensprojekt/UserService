@@ -25,9 +25,16 @@ namespace UserServiceAPI.Controllers
         // Get a user by ID
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
-    {
-        return null; // ikke implementeret kode endnu
-    }
+        {
+            var user = await _userDbRepository.GetUserById(id);
+
+            if (user == null)
+            {
+                return NotFound(); // Returnerer 404, hvis brugeren ikke findes
+            }
+
+            return Ok(user); // Returnerer 200 OK med brugerens data
+        }
 
         // Get all users
         [HttpGet("all")]
@@ -37,36 +44,54 @@ namespace UserServiceAPI.Controllers
             return Ok(users);  // Return the list of users with status code 200
         }
 
-        // Create a new user
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
-        {
-            if (user == null)
-            {
-                return BadRequest();  // Return 400 if user is null
-            }
+[HttpPost]
+public async Task<IActionResult> CreateUser([FromBody] User newUser)
+{
+    if (newUser == null) // Check for ugyldige inputs
+    {
+        return BadRequest(); // Returner 400 hvis brugerdata ikke er valide
+    }
 
-            var result = await _userDbRepository.CreateUser(user);
-            if (result)
-            {
-                return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);  // Return 201 if user is created
-            }
+    var wasCreated = await _userDbRepository.CreateUser(newUser);
 
-            return BadRequest();  // Return 400 if user cannot be created
-        }
+    if (!wasCreated)
+    {
+        return Conflict(); // Returner 409 hvis brugeren allerede eksisterer
+    }
 
-        // Update an existing user
+    return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser); // Returner 201 hvis succesfuldt
+}
+
+
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] User updatedUser)
-    {
-        return null; // ikke implementeret kode endnu
-    }
+        {
+            // Kald repository for at opdatere brugeren
+            var wasUpdated = await _userDbRepository.UpdateUser(id, updatedUser);
 
-        // Delete a user by ID
+            if (!wasUpdated)
+            {
+                return NotFound(); // Returner 404, hvis brugeren ikke findes
+            }
+
+            return Ok(); // Returner 200, hvis opdateringen lykkes
+        }
+
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
-    {
-        return null; // ikke implementeret kode endnu
-    }
+        {
+            // Kald repository for at slette brugeren
+            var wasDeleted = await _userDbRepository.DeleteUser(id);
+
+            if (!wasDeleted)
+            {
+                return NotFound(); // Returner 404, hvis brugeren ikke findes
+            }
+
+            return NoContent(); // Returner 204, hvis sletningen lykkes
+        }
+
     }
 }

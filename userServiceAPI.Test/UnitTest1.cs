@@ -141,26 +141,6 @@ namespace UnitTestController.Tests
 
         // CreateUser
         [Test]
-        public async Task CreateUser_ShouldReturnStatus400BadRequest_WhenUserIsInvalid()
-        {
-            // Arrange
-            var testUser = new User { Id = "user_123", Firstname = "Test User" };
-
-            _userDbRepositoryMock.Setup(repo => repo.CreateUser(testUser))
-                                 .ReturnsAsync(false); // Returns false if user cannot be created
-
-            // Act
-            var result = await _userController.CreateUser(testUser);
-
-            // Assert
-            Assert.IsInstanceOf<BadRequestResult>(result);
-            var badRequestResult = result as BadRequestResult;
-            Assert.IsNotNull(badRequestResult);
-            Assert.AreEqual(400, badRequestResult.StatusCode);
-        }
-
-        // CreateUser
-        [Test]
         public async Task CreateUser_ShouldReturnStatus409Conflict_WhenUserAlreadyExists()
         {
             // Arrange
