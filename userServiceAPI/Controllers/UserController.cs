@@ -32,16 +32,28 @@ namespace UserServiceAPI.Controllers
         // Get all users
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
-    {
-        return null; // ikke implementeret kode endnu
-    }
+        {
+            var users = await _userDbRepository.GetAllUsers();  // Fetch all users from the database
+            return Ok(users);  // Return the list of users with status code 200
+        }
 
         // Create a new user
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] User user)
-    {
-        return null; // ikke implementeret kode endnu
-    }
+        {
+            if (user == null)
+            {
+                return BadRequest();  // Return 400 if user is null
+            }
+
+            var result = await _userDbRepository.CreateUser(user);
+            if (result)
+            {
+                return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);  // Return 201 if user is created
+            }
+
+            return BadRequest();  // Return 400 if user cannot be created
+        }
 
         // Update an existing user
         [HttpPut("{id}")]
