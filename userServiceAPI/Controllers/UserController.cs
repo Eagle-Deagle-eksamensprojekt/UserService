@@ -44,27 +44,23 @@ namespace UserServiceAPI.Controllers
             return Ok(users);  // Return the list of users with status code 200
         }
 
-[HttpPost]
-public async Task<IActionResult> CreateUser([FromBody] User newUser)
-{
-    if (newUser == null) // Check for ugyldige inputs
-    {
-        return BadRequest(); // Returner 400 hvis brugerdata ikke er valide
+        // Create a new user
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] User newUser)
+        {
+            // Kald repository for at oprette brugeren
+            var wasCreated = await _userDbRepository.CreateUser(newUser);
+
+            if (!wasCreated)
+            {
+                return Conflict(); // Returner 409, hvis brugeren allerede eksisterer
+            }
+
+        return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
     }
 
-    var wasCreated = await _userDbRepository.CreateUser(newUser);
 
-    if (!wasCreated)
-    {
-        return Conflict(); // Returner 409 hvis brugeren allerede eksisterer
-    }
-
-    return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser); // Returner 201 hvis succesfuldt
-}
-
-
-
-        [HttpPut("{id}")]
+[       HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] User updatedUser)
         {
             // Kald repository for at opdatere brugeren
