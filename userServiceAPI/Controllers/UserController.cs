@@ -3,8 +3,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IUserServiceAPI.Repositories;  // For the IUserDbRepository interface
-using  UserService.Models;
+using Services;  // For the IUserDbRepository interface
+using UserService.Models;
 
 namespace UserServiceAPI.Controllers
 {

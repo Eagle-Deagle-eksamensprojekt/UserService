@@ -1,0 +1,3 @@
+Der er blevet tilføjet pakker:
+
+dotnet add package MongoDB.Driver

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IUserServiceAPI.Repositories;  // For the IUserDbRepository interface
+using Services;  // For the IUserDbRepository interface
 using UserService.Models;
 
-namespace IUserServiceAPI.Repositories
+namespace Services
 {
     public interface IUserDbRepository
     {
