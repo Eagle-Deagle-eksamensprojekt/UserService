@@ -50,6 +50,10 @@
       "isSeller": {
         "type": "boolean",
         "description": "Specifies whether the user has seller permissions."
+      },
+      "Salt": {
+        "type": "string",
+        "description": "Gives Salt to Password to make it harder to find"
       }
     },
     "required": [

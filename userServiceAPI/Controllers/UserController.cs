@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Services;  // For the IUserDbRepository interface
 using UserService.Models;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace UserServiceAPI.Controllers
 {
@@ -55,18 +57,36 @@ namespace UserServiceAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] User newUser)
         {
-            if (newUser == null || string.IsNullOrWhiteSpace(newUser.Email) || string.IsNullOrWhiteSpace(newUser.Firstname))
+            if (newUser == null || string.IsNullOrWhiteSpace(newUser.Email) || string.IsNullOrWhiteSpace(newUser.Firstname) || string.IsNullOrWhiteSpace(newUser.Password))
             {
-                return BadRequest("User data is invalid"); // Return 400 Bad Request if data is invalid
+                return BadRequest("User data is invalid");
             }
 
+            // Generér salt
+            byte[] saltBytes = new byte[128 / 8];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetNonZeroBytes(saltBytes);
+            }
+            newUser.Salt = Convert.ToBase64String(saltBytes);
+
+            // Hash passwordet med salt
+            newUser.Password = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: newUser.Password,
+                salt: saltBytes,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 100000,
+                numBytesRequested: 256 / 8));
+
+            // Gem i databasen
             var wasCreated = await _userDbRepository.CreateUser(newUser);
             if (wasCreated)
             {
-                return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser); // Return 201 Created
+                return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
             }
-            return Conflict("User already exists"); // Return 409 Conflict if user already exists
+            return Conflict("User already exists");
         }
+
 
 
         [HttpPut("{id}")]
@@ -124,5 +144,8 @@ namespace UserServiceAPI.Controllers
             _logger.LogInformation($"User found with email: {email}");
             return Ok(user);
         }
+        
+
+        
     }
 }
