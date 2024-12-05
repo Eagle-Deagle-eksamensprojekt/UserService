@@ -124,7 +124,7 @@ namespace UnitTestController.Tests
         public async Task CreateUser_ShouldReturnStatus201Created_WhenUserIsValid()
         {
             // Arrange
-            var testUser = new User { Id = "user_123", Firstname = "Test User", Email = "test@example.com" };
+            var testUser = new User { Id = "user_123", Firstname = "Test User", Email = "test@example.com", Password = "1234" };
 
             // Mock repository to simulate successful user creation
             _userDbRepositoryMock.Setup(repo => repo.CreateUser(testUser))
@@ -144,7 +144,7 @@ namespace UnitTestController.Tests
         public async Task CreateUser_ShouldReturnStatus409Conflict_WhenUserAlreadyExists()
         {
             // Arrange
-            var testUser = new User { Id = "user_123", Firstname = "Test User", Email = "test@example.com" };
+            var testUser = new User { Id = "user_123", Firstname = "Test User", Email = "test@example.com", Password = "1234" };
 
             // Mock repository to simulate user already exists
             _userDbRepositoryMock.Setup(repo => repo.CreateUser(testUser))
