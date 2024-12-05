@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Moq;
 using UserService.Models;
 using UserServiceAPI.Controllers;
-using IUserServiceAPI.Repositories;
+using Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
