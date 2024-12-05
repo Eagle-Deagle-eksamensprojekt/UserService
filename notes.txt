@@ -1,3 +1,4 @@
 Der er blevet tilføjet pakker:
 
 dotnet add package MongoDB.Driver
+dotnet add package NLog.Targets.Loki --version 2.2.0

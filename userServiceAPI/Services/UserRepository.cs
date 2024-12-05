@@ -96,6 +96,20 @@ namespace Services
             return await _userCollection.Find(u => u.UserId == ownerId).ToListAsync();
         }
 
+        public async Task<User> GetUserByEmail(string email)
+        {
+            try
+            {
+                _logger.LogInformation($"Getting user by email: {email}");
+                return await _userCollection.Find(u => u.Email == email).FirstOrDefaultAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Failed to get user by email: {0}", ex.Message);
+                return null;
+            }
+            
+        }
 
     }
 }
