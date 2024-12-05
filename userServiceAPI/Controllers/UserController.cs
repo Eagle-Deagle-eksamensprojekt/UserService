@@ -20,6 +20,13 @@ namespace UserServiceAPI.Controllers
         {
             _logger = logger;
             _userDbRepository = userDbRepository;
+
+            // For at modtage opkald fra anden service
+            // Log the IP address of the service
+            var hostName = System.Net.Dns.GetHostName(); // Get the name of the host
+            var ips = System.Net.Dns.GetHostAddresses(hostName); // Get the IP addresses associated with the host
+            var _ipaddr = ips.First().MapToIPv4().ToString(); // Get the first IPv4 address
+            _logger.LogInformation($"XYZ Service responding from {_ipaddr}"); // Log the IP address
         }
 
         // Get a user by ID
@@ -91,5 +98,31 @@ namespace UserServiceAPI.Controllers
             return NoContent(); // Returner 204, hvis sletningen lykkes
         }
 
+        // Denne bliver brugt af AuthService
+        // Get der returnere user by email
+        // Hent en bruger ved email, bruges af authService
+        [HttpGet("byEmail")]
+        public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
+        {
+            _logger.LogInformation("Getting user by email");
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                _logger.LogInformation("Email is required.");
+                return BadRequest("Email is required.");
+            }
+
+            _logger.LogInformation($"Getting user by email: {email}");
+            var user = await _userDbRepository.GetUserByEmail(email);
+            _logger.LogInformation($"User found with email: {email}");
+
+            if (user == null)
+            {
+                _logger.LogInformation($"User not found with email: {email}");
+                return NotFound("User not found");
+            }
+
+            _logger.LogInformation($"User found with email: {email}");
+            return Ok(user);
+        }
     }
 }
