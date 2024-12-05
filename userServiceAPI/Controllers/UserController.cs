@@ -147,5 +147,21 @@ namespace UserServiceAPI.Controllers
         
 
         
+        // Hent alle brugere med isSeller = true, bruges af itemService
+        [HttpGet("sellers")]
+        public async Task<IActionResult> GetSellers()
+        {
+            _logger.LogInformation("Getting all sellers");
+            var sellers = await _userDbRepository.GetSellersAsync();
+            if (sellers == null)
+            {
+                _logger.LogInformation("No sellers found");
+                return NotFound("No sellers found");
+            }
+
+            _logger.LogInformation("Sellers found");
+            return Ok(sellers);
+        }
+
     }
 }
