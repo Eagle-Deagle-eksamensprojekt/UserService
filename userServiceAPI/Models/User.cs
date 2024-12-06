@@ -6,9 +6,19 @@ namespace UserService.Models
     using System.Text.Json;
     using System.Text.Json.Serialization;
     using System.Globalization;
+    using MongoDB.Bson;
+    using MongoDB.Bson.Serialization.Attributes;
 
     public partial class User
     {
+        [BsonId]
+        [BsonRepresentation(BsonType.ObjectId)]
+        /// <summary>
+        /// A unique identifier for the user (MongoDB ObjectId).
+        /// </summary>
+        [JsonPropertyName("id")]
+        public string? Id { get; set; }
+
         /// <summary>
         /// The user's physical address.
         /// </summary>
@@ -33,12 +43,6 @@ namespace UserService.Models
         /// </summary>
         [JsonPropertyName("firstname")]
         public string Firstname { get; set; }
-
-        /// <summary>
-        /// A unique identifier for the user (MongoDB ObjectId).
-        /// </summary>
-        [JsonPropertyName("id")]
-        public string Id { get; set; }
 
         /// <summary>
         /// Specifies whether the user has administrative privileges.
@@ -76,5 +80,14 @@ namespace UserService.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("userId")]
         public string UserId { get; set; }
+
+        /// <summary> 
+        /// Salting for a password so its much harder to figure out the password in the database
+        /// <summary>
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]   
+        [JsonPropertyName("salt")]
+        public string Salt { get; set; }
+
+
     }
 }

@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Moq;
 using UserService.Models;
 using UserServiceAPI.Controllers;
-using IUserServiceAPI.Repositories;
+using Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -124,10 +124,11 @@ namespace UnitTestController.Tests
         public async Task CreateUser_ShouldReturnStatus201Created_WhenUserIsValid()
         {
             // Arrange
-            var testUser = new User { Id = "user_123", Firstname = "Test User" };
+            var testUser = new User { Id = "user_123", Firstname = "Test User", Email = "test@example.com", Password = "1234" };
 
+            // Mock repository to simulate successful user creation
             _userDbRepositoryMock.Setup(repo => repo.CreateUser(testUser))
-                                 .ReturnsAsync(true); // Returns true when user is created
+                                .ReturnsAsync(true); // Returns true when user is created
 
             // Act
             var result = await _userController.CreateUser(testUser);
@@ -139,22 +140,22 @@ namespace UnitTestController.Tests
             Assert.AreEqual(201, createdResult.StatusCode);
         }
 
-        // CreateUser
         [Test]
         public async Task CreateUser_ShouldReturnStatus409Conflict_WhenUserAlreadyExists()
         {
             // Arrange
-            var testUser = new User { Id = "user_123", Firstname = "Test User" };
+            var testUser = new User { Id = "user_123", Firstname = "Test User", Email = "test@example.com", Password = "1234" };
 
+            // Mock repository to simulate user already exists
             _userDbRepositoryMock.Setup(repo => repo.CreateUser(testUser))
-                                 .ReturnsAsync(false); // Returns false if user already exists
+                                .ReturnsAsync(false); // Returns false when user already exists
 
             // Act
             var result = await _userController.CreateUser(testUser);
 
             // Assert
-            Assert.IsInstanceOf<ConflictResult>(result);
-            var conflictResult = result as ConflictResult;
+            Assert.IsInstanceOf<ConflictObjectResult>(result);
+            var conflictResult = result as ConflictObjectResult;
             Assert.IsNotNull(conflictResult);
             Assert.AreEqual(409, conflictResult.StatusCode);
         }
@@ -241,6 +242,25 @@ namespace UnitTestController.Tests
             var notFoundResult = result as NotFoundResult;
             Assert.IsNotNull(notFoundResult);
             Assert.AreEqual(404, notFoundResult.StatusCode);
+        }
+
+        [Test]
+        public async Task CreateUser_ShouldReturnStatus400BadRequest_WhenUserHasInvalidData()
+        {
+            // Arrange
+            var invalidUser = new User { Id = "", Firstname = "", Email = "invalid-email" };
+
+            // Mock is not necessary here since the method should not reach the repository if the user data is invalid.
+    
+            // Act
+            var result = await _userController.CreateUser(invalidUser);
+
+            // Assert
+            Assert.IsInstanceOf<BadRequestObjectResult>(result);
+            var badRequestResult = result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequestResult);
+            Assert.AreEqual(400, badRequestResult.StatusCode);
+            Assert.AreEqual("User data is invalid", badRequestResult.Value);
         }
     }
 }

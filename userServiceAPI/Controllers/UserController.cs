@@ -3,8 +3,10 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IUserServiceAPI.Repositories;  // For the IUserDbRepository interface
-using  UserService.Models;
+using Services;  // For the IUserDbRepository interface
+using UserService.Models;
+using System.Security.Cryptography;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace UserServiceAPI.Controllers
 {
@@ -20,6 +22,13 @@ namespace UserServiceAPI.Controllers
         {
             _logger = logger;
             _userDbRepository = userDbRepository;
+
+            // For at modtage opkald fra anden service
+            // Log the IP address of the service
+            var hostName = System.Net.Dns.GetHostName(); // Get the name of the host
+            var ips = System.Net.Dns.GetHostAddresses(hostName); // Get the IP addresses associated with the host
+            var _ipaddr = ips.First().MapToIPv4().ToString(); // Get the first IPv4 address
+            _logger.LogInformation($"XYZ Service responding from {_ipaddr}"); // Log the IP address
         }
 
         // Get a user by ID
@@ -44,23 +53,39 @@ namespace UserServiceAPI.Controllers
             return Ok(users);  // Return the list of users with status code 200
         }
 
-[HttpPost]
-public async Task<IActionResult> CreateUser([FromBody] User newUser)
-{
-    if (newUser == null) // Check for ugyldige inputs
-    {
-        return BadRequest(); // Returner 400 hvis brugerdata ikke er valide
-    }
+        // Create a new user
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] User newUser)
+        {
+            if (newUser == null || string.IsNullOrWhiteSpace(newUser.Email) || string.IsNullOrWhiteSpace(newUser.Firstname) || string.IsNullOrWhiteSpace(newUser.Password))
+            {
+                return BadRequest("User data is invalid");
+            }
 
-    var wasCreated = await _userDbRepository.CreateUser(newUser);
+            // Generér salt
+            byte[] saltBytes = new byte[128 / 8];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetNonZeroBytes(saltBytes);
+            }
+            newUser.Salt = Convert.ToBase64String(saltBytes);
 
-    if (!wasCreated)
-    {
-        return Conflict(); // Returner 409 hvis brugeren allerede eksisterer
-    }
+            // Hash passwordet med salt
+            newUser.Password = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                password: newUser.Password,
+                salt: saltBytes,
+                prf: KeyDerivationPrf.HMACSHA256,
+                iterationCount: 100000,
+                numBytesRequested: 256 / 8));
 
-    return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser); // Returner 201 hvis succesfuldt
-}
+            // Gem i databasen
+            var wasCreated = await _userDbRepository.CreateUser(newUser);
+            if (wasCreated)
+            {
+                return CreatedAtAction(nameof(GetUserById), new { id = newUser.Id }, newUser);
+            }
+            return Conflict("User already exists");
+        }
 
 
 
@@ -93,5 +118,34 @@ public async Task<IActionResult> CreateUser([FromBody] User newUser)
             return NoContent(); // Returner 204, hvis sletningen lykkes
         }
 
+        // Denne bliver brugt af AuthService
+        // Get der returnere user by email
+        // Hent en bruger ved email, bruges af authService
+        [HttpGet("byEmail")]
+        public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
+        {
+            _logger.LogInformation("Getting user by email");
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                _logger.LogInformation("Email is required.");
+                return BadRequest("Email is required.");
+            }
+
+            _logger.LogInformation($"Getting user by email: {email}");
+            var user = await _userDbRepository.GetUserByEmail(email);
+            _logger.LogInformation($"User found with email: {email}");
+
+            if (user == null)
+            {
+                _logger.LogInformation($"User not found with email: {email}");
+                return NotFound("User not found");
+            }
+
+            _logger.LogInformation($"User found with email: {email}");
+            return Ok(user);
+        }
+        
+
+        
     }
 }
