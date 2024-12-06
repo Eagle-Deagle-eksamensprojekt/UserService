@@ -110,18 +110,5 @@ namespace Services
             }
             
         }
-
-        public async Task<List<User>> GetSellersAsync()
-        {
-            try
-            {   _logger.LogInformation("Getting all sellers");
-                return await _userCollection.Find(u => u.IsSeller == true).ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Failed to get sellers: {0}", ex.Message);
-                return null;
-            }
-        }
     }
 }
