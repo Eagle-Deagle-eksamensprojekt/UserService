@@ -144,8 +144,5 @@ namespace UserServiceAPI.Controllers
             _logger.LogInformation($"User found with email: {email}");
             return Ok(user);
         }
-        
-
-        
     }
 }
