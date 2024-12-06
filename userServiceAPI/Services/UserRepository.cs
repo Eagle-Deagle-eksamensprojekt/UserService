@@ -93,7 +93,7 @@ namespace Services
 
         public async Task<List<User>> GetUsersByOwnerId(string ownerId)
         {
-            return await _userCollection.Find(u => u.UserId == ownerId).ToListAsync();
+            return await _userCollection.Find(u => u.Id == ownerId).ToListAsync();
         }
 
         public async Task<User> GetUserByEmail(string email)
