@@ -74,13 +74,6 @@ namespace UserService.Models
         [JsonPropertyName("phoneNumber")]
         public string PhoneNumber { get; set; }
 
-        /// <summary>
-        /// A secondary unique identifier for use in the system (more human-readable).
-        /// </summary>
-        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        [JsonPropertyName("userId")]
-        public string UserId { get; set; }
-
         /// <summary> 
         /// Salting for a password so its much harder to figure out the password in the database
         /// <summary>
