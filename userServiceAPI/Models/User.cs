@@ -51,12 +51,6 @@ namespace UserService.Models
         public bool IsAdmin { get; set; }
 
         /// <summary>
-        /// Specifies whether the user has seller permissions.
-        /// </summary>
-        [JsonPropertyName("isSeller")]
-        public bool IsSeller { get; set; }
-
-        /// <summary>
         /// The user's last name.
         /// </summary>
         [JsonPropertyName("lastname")]
@@ -80,7 +74,5 @@ namespace UserService.Models
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]   
         [JsonPropertyName("salt")]
         public string Salt { get; set; }
-
-
     }
 }
