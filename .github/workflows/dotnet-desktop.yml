@@ -59,13 +59,13 @@ jobs:
 
     - name: Build Docker image with version tag
       run: |
-        docker build -t mikkelhv/4SemUserService:${{ env.VERSION }} -f ./userServiceAPI/Dockerfile ./userServiceAPI
+        docker build -t mikkelhv/4semuserservice:${{ env.VERSION }} -f ./userServiceAPI/Dockerfile ./userServiceAPI
 
     - name: Push Docker image to Docker Hub
       run: |
-        docker push mikkelhv/4SemUserService:${{ env.VERSION }}
+        docker push mikkelhv/4semuserservice:${{ env.VERSION }}
     
     - name: Tag og push docker image med latest versionering
       run: |
-        docker tag mikkelhv/4SemUserService:${{ env.VERSION }} mikkelhv/4SemUserService:latest
-        docker push mikkelhv/4SemUserService:latest
+        docker tag mikkelhv/4semuserservice:${{ env.VERSION }} mikkelhv/4semuserservice:latest
+        docker push mikkelhv/4semuserservice:latest
