@@ -30,7 +30,7 @@ namespace Services
                 var client = new MongoClient(connectionString);
                 var database = client.GetDatabase(databaseName);
                 _userCollection = database.GetCollection<User>(collectionName);
-                _logger.LogInformation("Connected to MongoDB.");
+                _logger.LogInformation("Connected to MongoDB");
             }
             catch (Exception ex)
             {
