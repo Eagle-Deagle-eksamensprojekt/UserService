@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 namespace UserServiceAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class UserController : ControllerBase
     {
         private readonly ILogger<UserController> _logger;
