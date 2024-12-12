@@ -7,11 +7,12 @@ using Services;  // For the IUserDbRepository interface
 using UserService.Models;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Diagnostics;
 
 namespace UserServiceAPI.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     public class UserController : ControllerBase
     {
         private readonly ILogger<UserController> _logger;
@@ -29,6 +30,28 @@ namespace UserServiceAPI.Controllers
             var ips = System.Net.Dns.GetHostAddresses(hostName); // Get the IP addresses associated with the host
             var _ipaddr = ips.First().MapToIPv4().ToString(); // Get the first IPv4 address
             _logger.LogInformation($"XYZ Service responding from {_ipaddr}"); // Log the IP address
+        }
+
+        /// <summary>
+        /// Hent version af Service
+        /// </summary>
+        [HttpGet("version")]
+        public async Task<Dictionary<string,string>> GetVersion()
+        {
+            var properties = new Dictionary<string, string>();
+            var assembly = typeof(Program).Assembly;
+
+            properties.Add("service", "OrderService");
+            var ver = FileVersionInfo.GetVersionInfo(
+                typeof(Program).Assembly.Location).ProductVersion ?? "N/A";
+            properties.Add("version", ver);
+            
+            var hostName = System.Net.Dns.GetHostName();
+            var ips = await System.Net.Dns.GetHostAddressesAsync(hostName);
+            var ipa = ips.First().MapToIPv4().ToString() ?? "N/A";
+            properties.Add("ip-address", ipa);
+            
+            return properties;
         }
 
         // Get a user by ID
