@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 
-namespace UserServiceAPI.Controllers
+namespace UserServiceAPI.Controllersx
 {
     [ApiController]
     [Route("[controller]")]
@@ -149,7 +149,7 @@ namespace UserServiceAPI.Controllers
         // Denne bliver brugt af AuthService
         // Get der returnere user by email
         // Hent en bruger ved email, bruges af authService
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet("byEmail")]
         public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
         {
