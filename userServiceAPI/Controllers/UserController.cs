@@ -8,6 +8,7 @@ using UserService.Models;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UserServiceAPI.Controllers
 {
@@ -35,6 +36,7 @@ namespace UserServiceAPI.Controllers
         /// <summary>
         /// Hent version af Service
         /// </summary>
+        [AllowAnonymous]
         [HttpGet("version")]
         public async Task<Dictionary<string,string>> GetVersion()
         {
@@ -55,6 +57,7 @@ namespace UserServiceAPI.Controllers
         }
 
         // Get a user by ID
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
@@ -69,6 +72,7 @@ namespace UserServiceAPI.Controllers
         }
 
         // Get all users
+        [Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -77,6 +81,7 @@ namespace UserServiceAPI.Controllers
         }
 
         // Create a new user
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] User newUser)
         {
@@ -111,7 +116,7 @@ namespace UserServiceAPI.Controllers
         }
 
 
-
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] User updatedUser)
         {
@@ -126,7 +131,7 @@ namespace UserServiceAPI.Controllers
             return Ok(); // Returner 200, hvis opdateringen lykkes
         }
 
-
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
@@ -144,6 +149,7 @@ namespace UserServiceAPI.Controllers
         // Denne bliver brugt af AuthService
         // Get der returnere user by email
         // Hent en bruger ved email, bruges af authService
+        [Authorize]
         [HttpGet("byEmail")]
         public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
         {
