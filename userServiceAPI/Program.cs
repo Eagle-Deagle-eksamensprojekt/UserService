@@ -20,7 +20,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<IUserDbRepository, UserMongoDBService>(); // Register the MongoDB repository singleton
 
 // Registrér at I ønsker at bruge NLOG som logger fremadrettet (før builder.build)
 builder.Logging.ClearProviders();
@@ -39,6 +38,20 @@ var vaultClient = new VaultClient(vaultClientSettings);
 var kv2Secret = await vaultClient.V1.Secrets.KeyValue.V2.ReadSecretAsync(path: "Secrets", mountPoint: "secret");
 var jwtSecret = kv2Secret.Data.Data["jwtSecret"]?.ToString() ?? throw new Exception("jwtSecret not found in Vault.");
 var jwtIssuer = kv2Secret.Data.Data["jwtIssuer"]?.ToString() ?? throw new Exception("jwtIssuer not found in Vault.");
+// mongoConnectionString hentes fra Vault
+var mongoConnectionString = kv2Secret.Data.Data["MongoConnectionString"]?.ToString() ?? throw new Exception("MongoConnectionString not found in Vault.");
+
+builder.Services.AddSingleton<IUserDbRepository, UserMongoDBService>(sp =>
+{
+    var logger = sp.GetRequiredService<ILogger<UserMongoDBService>>();
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var mongoConnectionString = sp.GetRequiredService<string>();
+    return new UserMongoDBService(logger, configuration, mongoConnectionString);
+});
+
+// Dependency injection af mongoConnectionString
+builder.Services.AddSingleton(mongoConnectionString);
+
 
 
 // Register JWT authentication
