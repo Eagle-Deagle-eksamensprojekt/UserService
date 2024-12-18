@@ -1,8 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Services;  // For the IUserDbRepository interface
 using UserService.Models;
 using System.Security.Cryptography;
@@ -10,7 +6,7 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Authorization;
 
-namespace UserServiceAPI.Controllersx
+namespace UserServiceAPI.Controllers
 {
     [ApiController]
     [Route("[controller]")]
