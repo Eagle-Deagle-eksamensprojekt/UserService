@@ -24,7 +24,7 @@ namespace UserService.Models
         /// </summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         [JsonPropertyName("address")]
-        public string Address { get; set; }
+        public string? Address { get; set; }
 
         /// <summary>
         /// The date and time when the user was created.
@@ -36,13 +36,13 @@ namespace UserService.Models
         /// The user's email address.
         /// </summary>
         [JsonPropertyName("email")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         /// <summary>
         /// The user's first name.
         /// </summary>
         [JsonPropertyName("firstname")]
-        public string Firstname { get; set; }
+        public string? Firstname { get; set; }
 
         /// <summary>
         /// Specifies whether the user has administrative privileges.
@@ -54,25 +54,25 @@ namespace UserService.Models
         /// The user's last name.
         /// </summary>
         [JsonPropertyName("lastname")]
-        public string Lastname { get; set; }
+        public string? Lastname { get; set; }
 
         /// <summary>
         /// The user's hashed password.
         /// </summary>
         [JsonPropertyName("password")]
-        public string Password { get; set; }
+        public string? Password { get; set; }
 
         /// <summary>
         /// The user's phone number, 8-15 digits.
         /// </summary>
         [JsonPropertyName("phoneNumber")]
-        public string PhoneNumber { get; set; }
+        public string? PhoneNumber { get; set; }
 
         /// <summary> 
         /// Salting for a password so its much harder to figure out the password in the database
         /// <summary>
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]   
         [JsonPropertyName("salt")]
-        public string Salt { get; set; }
+        public string? Salt { get; set; }
     }
 }
