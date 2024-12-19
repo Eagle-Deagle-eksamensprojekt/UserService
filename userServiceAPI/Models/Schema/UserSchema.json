@@ -56,8 +56,7 @@
       "password",
       "phoneNumber",
       "createdDate",
-      "isAdmin",
-      "isSeller"
+      "isAdmin"
     ]
   }
   

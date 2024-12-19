@@ -13,31 +13,37 @@ namespace Services
         private readonly IMongoCollection<User> _userCollection;
         private readonly ILogger<UserMongoDBService> _logger;
 
-        public UserMongoDBService(ILogger<UserMongoDBService> logger, IConfiguration configuration)
+        public UserMongoDBService(ILogger<UserMongoDBService> logger, IConfiguration configuration, string mongoConnectionString)
         {
             _logger = logger;
 
-            var connectionString = configuration["MongoConnectionString"] ?? "<blank>";
-            var databaseName = configuration["DatabaseName"] ?? "<blank>";
-            var collectionName = configuration["CollectionName"] ?? "<blank>";
-            
-            _logger.LogInformation($"Connecting to MongoDB using: {connectionString}");
+            if (string.IsNullOrWhiteSpace(mongoConnectionString))
+            {
+                throw new ArgumentNullException(nameof(mongoConnectionString), "MongoConnectionString cannot be null or empty.");
+            }
+
+            var databaseName = configuration["DatabaseName"] ?? throw new Exception("DatabaseName not found in configuration.");
+            var collectionName = configuration["CollectionName"] ?? throw new Exception("CollectionName not found in configuration.");
+
+            _logger.LogInformation($"Connecting to MongoDB using: {mongoConnectionString}");
             _logger.LogInformation($"Using database: {databaseName}");
             _logger.LogInformation($"Using collection: {collectionName}");
 
             try
             {
-                var client = new MongoClient(connectionString);
+                var client = new MongoClient(mongoConnectionString); // Initialiser korrekt
                 var database = client.GetDatabase(databaseName);
                 _userCollection = database.GetCollection<User>(collectionName);
-                _logger.LogInformation("Connected to MongoDB.");
+                _logger.LogInformation("Connected to MongoDB");
             }
             catch (Exception ex)
             {
-                _logger.LogError("Failed to connect to MongoDB: {0}", ex.Message);
-                throw; 
+                _logger.LogError(ex, "Failed to connect to MongoDB.");
+                throw;
             }
         }
+
+        
 
         public async Task<bool> CreateUser(User user)
         {

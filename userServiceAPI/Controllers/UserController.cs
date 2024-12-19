@@ -1,12 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Services;  // For the IUserDbRepository interface
 using UserService.Models;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UserServiceAPI.Controllers
 {
@@ -31,7 +29,31 @@ namespace UserServiceAPI.Controllers
             _logger.LogInformation($"XYZ Service responding from {_ipaddr}"); // Log the IP address
         }
 
+        /// <summary>
+        /// Hent version af Service
+        /// </summary>
+        [AllowAnonymous]
+        [HttpGet("version")]
+        public async Task<Dictionary<string,string>> GetVersion()
+        {
+            var properties = new Dictionary<string, string>();
+            var assembly = typeof(Program).Assembly;
+
+            properties.Add("service", "OrderService");
+            var ver = FileVersionInfo.GetVersionInfo(
+                typeof(Program).Assembly.Location).ProductVersion ?? "N/A";
+            properties.Add("version", ver);
+            
+            var hostName = System.Net.Dns.GetHostName();
+            var ips = await System.Net.Dns.GetHostAddressesAsync(hostName);
+            var ipa = ips.First().MapToIPv4().ToString() ?? "N/A";
+            properties.Add("ip-address", ipa);
+            
+            return properties;
+        }
+
         // Get a user by ID
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(string id)
         {
@@ -46,6 +68,7 @@ namespace UserServiceAPI.Controllers
         }
 
         // Get all users
+        [Authorize]
         [HttpGet("all")]
         public async Task<IActionResult> GetAllUsers()
         {
@@ -54,6 +77,7 @@ namespace UserServiceAPI.Controllers
         }
 
         // Create a new user
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] User newUser)
         {
@@ -88,7 +112,7 @@ namespace UserServiceAPI.Controllers
         }
 
 
-
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(string id, [FromBody] User updatedUser)
         {
@@ -103,7 +127,7 @@ namespace UserServiceAPI.Controllers
             return Ok(); // Returner 200, hvis opdateringen lykkes
         }
 
-
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
@@ -121,6 +145,7 @@ namespace UserServiceAPI.Controllers
         // Denne bliver brugt af AuthService
         // Get der returnere user by email
         // Hent en bruger ved email, bruges af authService
+        [AllowAnonymous]
         [HttpGet("byEmail")]
         public async Task<IActionResult> GetUserByEmail([FromQuery] string email)
         {
